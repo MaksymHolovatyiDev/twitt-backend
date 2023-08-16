@@ -48,7 +48,6 @@ export class AuthService {
       throw new HttpException('Conflict', HttpStatus.CONFLICT);
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log(1, hashedPassword);
 
     const createdUser = new this.userModel({
       ...body,
