@@ -18,11 +18,13 @@ export class UserPostsController {
   constructor(private readonly userPostsService: UsersPostsService) {}
 
   @Get('all')
-    GetAllPosts() { }
-    
+  GetAllPosts() {
+    return this.userPostsService.GetAllPosts();
+  }
+
   @Get('user')
   GetUserPosts(@Req() request) {
-      return this.userPostsService.GetUserPosts(request);
+    return this.userPostsService.GetUserPosts(request);
   }
 
   @Post('create')

@@ -11,8 +11,24 @@ export class UsersPostsService {
     @InjectModel(User.name) private userModel: Model<User>
   ) {}
 
-  GetAllPosts() {
-    return this.userPostsModel.findOne().lean();
+  async GetAllPosts() {
+    return await this.userPostsModel.aggregate([
+      {
+        $addFields: {
+          liked: { $in: ['as', '$likes'] },
+          likesNumber: { $size: '$likes' },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          liked: 1,
+          likesNumber: 1,
+          img: 1,
+          text: 1,
+        },
+      },
+    ]);
   }
 
   GetUserPosts(req) {
@@ -49,5 +65,18 @@ export class UsersPostsService {
           { $push: { likes: id } },
           { new: true }
         );
+  }
+
+  async addComment(req, body) {
+    const { _id, comment } = body;
+    const { userId } = req;
+
+    // await this.userPostsModel.findByIdAndUpdate(_id, {
+    //   $push: { comments: createdPost._id },
+    // });
+  }
+
+  getPostComments(body) {
+    const { _id } = body;
   }
 }
