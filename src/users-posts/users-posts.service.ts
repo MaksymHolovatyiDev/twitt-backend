@@ -11,18 +11,18 @@ export class UsersPostsService {
     @InjectModel(User.name) private userModel: Model<User>
   ) {}
 
-  async GetAllPosts() {
+  async GetAllPosts(req) {
     return await this.userPostsModel.aggregate([
       {
         $addFields: {
-          liked: { $in: ['as', '$likes'] },
+          isLiked: { $in: [req.userId, '$likes'] },
           likesNumber: { $size: '$likes' },
         },
       },
       {
         $project: {
           _id: 1,
-          liked: 1,
+          isLiked: 1,
           likesNumber: 1,
           img: 1,
           text: 1,
@@ -35,7 +35,7 @@ export class UsersPostsService {
     return this.userModel
       .findById(req.userId)
       .populate('posts')
-      .select('posts');
+      .select('posts name');
   }
 
   async CreateUserPost(req, body) {
@@ -54,17 +54,15 @@ export class UsersPostsService {
       id
     );
 
-    return liked
-      ? this.userPostsModel.findByIdAndUpdate(
-          body._id,
-          { $pull: { likes: id } },
-          { new: true }
-        )
-      : this.userPostsModel.findByIdAndUpdate(
-          body._id,
-          { $push: { likes: id } },
-          { new: true }
-        );
+    liked
+      ? await this.userPostsModel.findByIdAndUpdate(body._id, {
+          $pull: { likes: id },
+        })
+      : await this.userPostsModel.findByIdAndUpdate(body._id, {
+          $push: { likes: id },
+        });
+
+    return { liked: !liked };
   }
 
   async addComment(req, body) {
