@@ -8,10 +8,13 @@ export type CommentDocument = HydratedDocument<Comment>;
 })
 export class Comment {
   @Prop({ required: true })
-  comment: string;
+  text: string;
 
   @Prop()
   name: string;
+
+  @Prop()
+  userCommentId: string;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);

@@ -11,3 +11,11 @@ export class CreateLikeDto {
   @MinLength(5)
   _id: string;
 }
+
+export class CreateCommentDto extends CreatePostDto {
+  @IsNotEmpty()
+  @MinLength(5)
+  _id: string;
+}
+
+export class CreateCommentsDto extends CreateLikeDto {}

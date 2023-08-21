@@ -6,13 +6,16 @@ import {
   Post,
   Req,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 
 import { UsersPostsService } from './users-posts.service';
 import { AuthGuard } from 'src/guard/auth.guard';
-import { CreateLikeDto, CreatePostDto } from './dto/create-users-posts.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  CreateCommentDto,
+  CreateCommentsDto,
+  CreateLikeDto,
+  CreatePostDto,
+} from './dto/create-users-posts.dto';
 
 @Controller('posts')
 @UseGuards(AuthGuard)
@@ -30,7 +33,6 @@ export class UserPostsController {
   }
 
   @Post('create')
-  @UseInterceptors(FileInterceptor('image'))
   CreateUserPost(@Req() request, @Body() createPostDto: CreatePostDto) {
     return this.userPostsService.CreateUserPost(request, createPostDto);
   }
@@ -38,5 +40,10 @@ export class UserPostsController {
   @Patch('like')
   LikePost(@Req() request, @Body() createLikeDto: CreateLikeDto) {
     return this.userPostsService.LikePost(request, createLikeDto);
+  }
+
+  @Post('comment')
+  CommentPost(@Req() request, @Body() createLikeDto: CreateCommentDto) {
+    return this.userPostsService.addComment(request, createLikeDto);
   }
 }

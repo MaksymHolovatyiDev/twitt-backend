@@ -10,14 +10,14 @@ export class Post {
   @Prop({ required: true })
   text: string;
 
-  @Prop({ default: '' })
-  img: string;
-
   @Prop({ default: [] })
   likes: string[];
 
+  @Prop()
+  name: string;
+
   @Prop({ default: [], ref: 'Comment' })
-  posts: Types.ObjectId[];
+  comments: Types.ObjectId[];
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);
