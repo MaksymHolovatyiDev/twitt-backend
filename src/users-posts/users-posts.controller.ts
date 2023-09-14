@@ -12,7 +12,6 @@ import { UsersPostsService } from './users-posts.service';
 import { AuthGuard } from 'src/guard/auth.guard';
 import {
   CreateCommentDto,
-  CreateCommentsDto,
   CreateLikeDto,
   CreatePostDto,
 } from './dto/create-users-posts.dto';
