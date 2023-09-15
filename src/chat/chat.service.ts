@@ -10,8 +10,15 @@ export class ChatService {
   async GetAllComments() {
     return await this.chatModel
       .find({replied: false})
+      .populate({
+        path: 'Comments',
+        populate: {
+          path: 'user',
+          select: 'name',
+        },
+      })
       .populate({path: 'user', select: 'name'})
-      .select('Comments createdAt text user vote');
+      .select('Comments createdAt text user vote replied');
   }
 
   async AddComment(req, body) {
@@ -42,11 +49,50 @@ export class ChatService {
     if (comment.user !== req.userId)
       throw new HttpException('Incorrect user!', HttpStatus.FORBIDDEN);
 
+    if (!comment.replied) {
+      await this.chatModel.deleteMany({_id: {$in: comment.Comments}});
+    } else {
+      await this.chatModel.findByIdAndUpdate(comment.Comments[0], {
+        $pull: {Comments: comment._id},
+      });
+    }
+
     return this.chatModel.findByIdAndDelete(_id);
   }
 
   async Reply(req, body) {
     const comment = await this.chatModel.findById(body._id);
+
+    if (!comment)
+      throw new HttpException('Comment not found!', HttpStatus.BAD_REQUEST);
+
+    if (comment.replied) {
+      const createdPost = await new this.chatModel({
+        text: body.text,
+        user: req.userId,
+        replied: true,
+        Comments: comment.Comments,
+      }).save();
+
+      await this.chatModel.findByIdAndUpdate(comment.Comments[0], {
+        $push: {Comments: createdPost._id},
+      });
+
+      return createdPost;
+    }
+
+    const createdPost = await new this.chatModel({
+      text: body.text,
+      user: req.userId,
+      replied: true,
+      Comments: [comment._id],
+    }).save();
+
+    await this.chatModel.findByIdAndUpdate(body._id, {
+      $push: {Comments: createdPost._id},
+    });
+
+    return createdPost;
   }
 
   async CommentVoteUp(req, _id) {
